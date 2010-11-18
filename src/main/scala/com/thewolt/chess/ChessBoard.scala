@@ -15,15 +15,7 @@ trait Piece {
   val moves: Iterable[IPos]
   val letter: String
 }
-//class Data(val map: List[(Int, String)]) {
-//  override def hashCode = map.sortBy( a => a._1 ).foldLeft(0) { (a,b) => a << 3 | b._1 }
-//  override def equals(o: Any) = {
-//    o match {
-//      case d: Data => map.sortBy(a => a._1).equals(d.map.sortBy(a => a._1))
-//      case _ => false
-//    }
-//  }
-//}
+
 object Data {
     /* returns data and found */
   def addChild(children: List[Data], d: Data): (Data, Boolean) = {
@@ -87,8 +79,6 @@ class CheckBoard(width: Int, height: Int) {
     val letter = "N"
   }
 
-  type BRepr = String
-
   abstract class Square
   case object Empty extends Square
   case object Check extends Square
@@ -113,8 +103,6 @@ class CheckBoard(width: Int, height: Int) {
       repr.toList.sortBy(a => a._1).foreach { case (k,v) => buf.append(k).append(v) }
       buf.toString
     }
-    //def usedRepr : BRepr = new Data(repr)
-
 
     val inBoard: Pos => Boolean = (p: Pos) => p.x >= 0 && p.x < width && p.y >=0 && p.y < height
 
@@ -129,15 +117,9 @@ class CheckBoard(width: Int, height: Int) {
     def _withPieceAt(piece: Piece, pos: Pos, moves: Iterable[Pos]): CheckBoardInstance = {
       val newLayout = layout.clone
       for( p <- moves) {
-//        val newVal = atPos(p) match {
-//          case Empty => Check
-//          case Check => Check
-//          case _ => error("cannot place: " + piece + " at " + pos + " unexpected pos at:" + p)
-//        }
-//        newLayout(p.toOffset) = newVal
         newLayout(p.toOffset) = Check
       }
-      newLayout(pos.toOffset) = WithPiece(piece)
+      newLayout.update(pos.toOffset, WithPiece(piece))
       new CheckBoardInstance(newLayout, Some(BoardCons(this, piece, pos)))
     }
 
@@ -184,12 +166,12 @@ class CheckBoard(width: Int, height: Int) {
 
   case class Level( level: Int, cur: CheckBoardInstance)
 
-  def filterRepr(repr: List[(Int, String)]) : List[(Int, String)] = {
+  def sortRepr(repr: List[(Int, String)]) : List[(Int, String)] = {
     repr match {
       case Nil => Nil
       case a :: Nil => a :: Nil
-      case (pos1, letter1) :: (pos2, letter2) :: rest if pos1 > pos2 && letter1 == letter2 => filterRepr((pos2, letter2) :: (pos1, letter1) :: rest)
-      case a :: rest => a :: filterRepr(rest)
+      case (pos1, letter1) :: (pos2, letter2) :: rest if pos1 > pos2 && letter1 == letter2 => sortRepr((pos2, letter2) :: (pos1, letter1) :: rest)
+      case a :: rest => a :: sortRepr(rest)
     }
   }
 
@@ -205,7 +187,7 @@ class CheckBoard(width: Int, height: Int) {
       val Level(level, board) = stack.pop
 
       if(level == pieces.size) {
-        val root :: rest = filterRepr(board.repr)
+        val root :: rest = sortRepr(board.repr)
         val (resRoot, resRootAdd) = Data.addChild(res, Data(root._1, root._2.charAt(0)))
         if(resRootAdd) {
           res ::= resRoot
@@ -217,7 +199,6 @@ class CheckBoard(width: Int, height: Int) {
         if(newBranch) {
           count += 1
         }
-        //println("found: " + board)
         if(count % 1000 == 0) {
           println("got res.size="+count)
         }
