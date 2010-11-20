@@ -48,15 +48,27 @@ class CheckBoardTest extends FunSuite {
     val i = (new CheckBoardInstance).withPieceAt(King, Pos(0, 0))
     assert( i.place(Rook).toSet === Set(Pos(2, 1), Pos(2, 2), Pos(1, 2)).map( i.withPieceAt(Rook, _)))
   }
+}
 
+class CheckBoardFunctionalTest extends FunSuite {
   test("board can place 2 king and a rook") {
-    assert( board.place(King, King, Rook)._2 === 4)
-//    assert( board.place(King, King, Rook) === Set(
-//      EmptyBoard.withPieceAt(King, Pos(0, 0)).withPieceAt(King, Pos(0, 2)).withPieceAt(Rooke, Pos(2, 1)),
-//      EmptyBoard.withPieceAt(King, Pos(0, 0)).withPieceAt(King, Pos(2, 0)).withPieceAt(Rooke, Pos(1, 2)),
-//      EmptyBoard.withPieceAt(King, Pos(0, 2)).withPieceAt(King, Pos(2, 2)).withPieceAt(Rooke, Pos(1, 0)),
-//      EmptyBoard.withPieceAt(King, Pos(2, 0)).withPieceAt(King, Pos(2, 2)).withPieceAt(Rooke, Pos(0, 1))
-//
-//      ).map(_.usedRepr) )
+    implicit val board = new CheckBoard(3, 3)
+
+    val (places, count) = board.place(King, King, Rook)
+    assert( count === 4 )
+    info(places)
+  }
+
+  test("board can place 8 queens") {
+    implicit val board = new CheckBoard(8, 8)
+
+    val (places, count) = board.place((1 to 8).map(_ => Queen).toList : _*)
+    assert( count === 92)
+    info(places)
+  }
+
+  def info(places: List[List[Data]])(implicit b: CheckBoard) {
+    import b._
+    println( places.map { l => l.foldLeft(EmptyBoard: CheckBoardInstance) { (board, data) => board.withPieceAt(data.piece, data.pos) } }.mkString("\n"))
   }
 }

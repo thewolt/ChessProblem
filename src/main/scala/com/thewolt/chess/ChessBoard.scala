@@ -4,31 +4,11 @@ case class Pos(x: Int, y: Int) {
   def withDir(d: Pos) = copy( x = d.x + x , y = d.y + y)
 }
 
-class Tree[T](val data: T) {
-  var children : List[Tree[T]] = Nil
-
-  def add(newData: T): Tree[T] = {
-    val (data, b) = addChild(children, newData)
-    if(b) {
-      children = data :: children
-    }
-    data
-  }
-
-  /* returns data and ifNew */
-  private def addChild(list: List[Tree[T]], d: T): (Tree[T], Boolean) = {
-    list match {
-      case Nil => (new Tree(d), true)
-      case used :: rest => if(d == used.data) (used, false) else addChild(rest, d)
-    }
-  }
-}
-
-case class Data(pos: Pos, piece: Piece)
-
 abstract class Piece(val letter: String) {
   def allowMove(dir: Pos): Boolean
 }
+
+case class Data(pos: Pos, piece: Piece)
 
 object King extends Piece("K") {
   def allowMove(dir: Pos) = (dir.x.abs max dir.y.abs) == 1
@@ -173,14 +153,14 @@ class CheckBoard(width: Int, height: Int) {
 
   object EmptyBoard extends CheckBoardInstance()
 
-  def place(_pieces: Piece*) : (Tree[Data], Int) = {
+  def place(_pieces: Piece*) : (List[List[Data]], Int) = {
     val pieces = Vector( _pieces : _*).map { p => new PieceOnBoard(p) }
-    val res: Tree[Data] = new Tree[Data](null)
+    var res: List[List[Data]] = Nil
     var count = 0
 
     def findPlaces(level: Int, board: CheckBoardInstance) {
       if(level == pieces.size) {
-        board.repr.foldLeft(res) { case (tree : Tree[Data], data: Data) => tree.add(data) }
+        res ::= board.repr
         count +=1
         if(count % 1000 == 0) {
           println("got res.size="+count)

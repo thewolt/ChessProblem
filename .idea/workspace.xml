@@ -4,7 +4,7 @@
     <list default="true" id="d05fe5e9-1ae8-44f9-b4b0-b77f21e7967a" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/thewolt/chess/ChessBoard.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/thewolt/chess/ChessBoard.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wolt2.iml" afterPath="$PROJECT_DIR$/wolt2.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/scala/com/thewolt/chess/CheckBoardTest.scala" afterPath="$PROJECT_DIR$/src/test/scala/com/thewolt/chess/CheckBoardTest.scala" />
     </list>
     <ignored path="wolt2.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -63,10 +63,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="ChessBoard.scala" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="ChessBoard.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/com/thewolt/chess/ChessBoard.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="24" column="4" selection-start="590" selection-end="590" vertical-scroll-proportion="0.45040214">
+            <state line="193" column="2" selection-start="5949" selection-end="5949" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -90,10 +90,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CheckBoardTest.scala" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="CheckBoardTest.scala" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/scala/com/thewolt/chess/CheckBoardTest.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="15" column="31" selection-start="336" selection-end="336" vertical-scroll-proportion="0.0">
+            <state line="50" column="0" selection-start="1613" selection-end="1613" vertical-scroll-proportion="1.2006861">
               <folding />
             </state>
           </provider>
@@ -151,8 +151,8 @@
     <option name="changedFiles">
       <list>
         <option value="$PROJECT_DIR$/project/build/Chess.scala" />
-        <option value="$PROJECT_DIR$/src/test/scala/com/thewolt/chess/CheckBoardTest.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/thewolt/chess/ChessBoard.scala" />
+        <option value="$PROJECT_DIR$/src/test/scala/com/thewolt/chess/CheckBoardTest.scala" />
       </list>
     </option>
   </component>
@@ -270,6 +270,10 @@
             <PATH_ELEMENT>
               <option name="myItemId" value="chess" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="CheckBoardTest.scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.ClassesTreeStructureProvider$PsiClassOwnerTreeNode" />
             </PATH_ELEMENT>
           </PATH>
           <PATH>
@@ -460,7 +464,7 @@
     <property name="options.splitter.details.proportions" value="0.2" />
     <property name="options.searchVisible" value="true" />
   </component>
-  <component name="RunManager" selected="Application.Main">
+  <component name="RunManager" selected="ScalaTest.CheckBoardFunctionalTest">
     <configuration default="false" name="CheckBoardTest" type="ScalaTestRunConfiguration" factoryName="ScalaTest" temporary="true">
       <module name="wolt2" />
       <setting name="path" value="com.thewolt.chess.CheckBoardTest" />
@@ -476,6 +480,18 @@
       </RunnerSettings>
       <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Debug" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
+    <configuration default="false" name="CheckBoardFunctionalTest" type="ScalaTestRunConfiguration" factoryName="ScalaTest" temporary="true">
+      <module name="wolt2" />
+      <setting name="path" value="com.thewolt.chess.CheckBoardFunctionalTest" />
+      <setting name="package" value="" />
+      <setting name="vmparams" value="" />
+      <setting name="params" value="" />
+      <setting name="version" value="false" />
+      <setting name="workingDirectory" value="$PROJECT_DIR$" />
+      <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Run" />
       <method />
     </configuration>
@@ -645,9 +661,10 @@
       <ConfigurationWrapper RunnerId="Run" />
       <method />
     </configuration>
-    <list size="2">
+    <list size="3">
       <item index="0" class="java.lang.String" itemvalue="Application.Main" />
       <item index="1" class="java.lang.String" itemvalue="ScalaTest.CheckBoardTest" />
+      <item index="2" class="java.lang.String" itemvalue="ScalaTest.CheckBoardFunctionalTest" />
     </list>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
       <Host>localhost</Host>
@@ -686,9 +703,9 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32916927" sideWeight="0.734609" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.26061398" sideWeight="0.6601363" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.26061398" sideWeight="0.53236794" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.33986372" sideWeight="0.9945593" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.46763203" sideWeight="0.9945593" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
@@ -709,7 +726,7 @@
     <option name="CHANGED_ON_SERVER_INTERVAL" value="60" />
     <option name="SHOW_ONLY_CHANGED_IN_SELECTION_DIFF" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="extract piece object ( King, Queen, ... ) outside the chess board&#10;introduce PIeceOnBoard data structure and some implicits to convert into it&#10;some scaladoc" />
+    <option name="LAST_COMMIT_MESSAGE" value="improve the tree... but it seems we dont need it anymore" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -730,6 +747,7 @@
     <MESSAGE value="simplify Data case class" />
     <MESSAGE value="various refactor and typo fix" />
     <MESSAGE value="extract piece object ( King, Queen, ... ) outside the chess board&#10;introduce PIeceOnBoard data structure and some implicits to convert into it&#10;some scaladoc" />
+    <MESSAGE value="improve the tree... but it seems we dont need it anymore" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -774,13 +792,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/scala/com/thewolt/chess/CheckBoardTest.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="15" column="31" selection-start="336" selection-end="336" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$USER_HOME$/usr/scala-2.8.1.final/src/scala-library-src.jar!/scala/collection/immutable/Range.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="195" column="12" selection-start="6276" selection-end="6276" vertical-scroll-proportion="0.0">
@@ -790,7 +801,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/com/thewolt/chess/ChessBoard.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="24" column="4" selection-start="590" selection-end="590" vertical-scroll-proportion="0.45040214">
+        <state line="193" column="2" selection-start="5949" selection-end="5949" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/com/thewolt/chess/CheckBoardTest.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="50" column="0" selection-start="1613" selection-end="1613" vertical-scroll-proportion="1.2006861">
           <folding />
         </state>
       </provider>
