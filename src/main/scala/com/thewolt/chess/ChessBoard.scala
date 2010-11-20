@@ -123,7 +123,7 @@ class CheckBoard(width: Int, height: Int) {
       new CheckBoardInstance(newLayout, Some(BoardCons(this, piece, pos)))
     }
 
-    def place(piece: Piece): Iterable[CheckBoardInstance] = availablePos.flatMap { p =>
+    def place(piece: Piece): Iterable[CheckBoardInstance] = availablePos(piece).flatMap { p =>
       val moves = pieceMoves(piece, p)
       if(_canPieceStay(piece, p, moves)) {
         Some(_withPieceAt(piece, p, moves))
@@ -144,13 +144,17 @@ class CheckBoard(width: Int, height: Int) {
 
     def availablePos: Iterable[Pos] = layout.zipWithIndex.flatMap { case (sq,i) => if(sq == Empty) Some(fromOffset(i)) else None }
 
+    def availablePos(piece: Piece): Iterable[Pos] = info match {
+      case Some(i) if i.piece == piece => availablePos.filter(p => p.toOffset > i.pos.toOffset)
+      case _ => availablePos
+    }
+
     override def equals(obj: Any) = {
       obj match {
         case other: CheckBoardInstance => List(layout: _*) == List(other.layout :_*)
         case _ => false
       }
     }
-
 
     override def toString = "Check[\n" + (0 until height).map( y =>
       (0 until width).map( x =>
@@ -166,18 +170,7 @@ class CheckBoard(width: Int, height: Int) {
 
   case class Level( level: Int, cur: CheckBoardInstance)
 
-  def sortRepr(repr: List[(Int, String)]) : List[(Int, String)] = {
-    repr match {
-      case Nil => Nil
-      case a :: Nil => a :: Nil
-      case (pos1, letter1) :: (pos2, letter2) :: rest if pos1 > pos2 && letter1 == letter2 => sortRepr((pos2, letter2) :: (pos1, letter1) :: rest)
-      case a :: rest => a :: sortRepr(rest)
-    }
-  }
-
-
-
-  def place(_pieces: Piece*): Int = {
+  def place(_pieces: Piece*): (List[Data], Int) = {
     val pieces = Vector( _pieces : _*)
     val stack = new Stack[Level]()
     stack.push(Level(0, EmptyBoard))
@@ -187,7 +180,7 @@ class CheckBoard(width: Int, height: Int) {
       val Level(level, board) = stack.pop
 
       if(level == pieces.size) {
-        val root :: rest = sortRepr(board.repr)
+        val root :: rest = board.repr
         val (resRoot, resRootAdd) = Data.addChild(res, Data(root._1, root._2.charAt(0)))
         if(resRootAdd) {
           res ::= resRoot
@@ -209,7 +202,7 @@ class CheckBoard(width: Int, height: Int) {
         )
       }
     }
-    count
+    (res,count)
   }
 
 }
@@ -221,7 +214,8 @@ object Main {
   def main(args: Array[String]) {
     val board = new CheckBoard(7, 7)
     import board._
-    
-    println( board.place( Queen, Queen, Bishop, Bishop, King, King, Knight) )
+
+    val (res, count) = board.place(Queen, Queen, Bishop, Bishop, King, King, Knight)
+    println( count )
   }
 }

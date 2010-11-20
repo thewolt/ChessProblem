@@ -49,7 +49,7 @@ class CheckBoardTest extends FunSuite {
   }
 
   test("board can place 2 king and a rook") {
-    assert( board.place(King, King, Rooke) === 4)
+    assert( board.place(King, King, Rooke)._2 === 4)
 //    assert( board.place(King, King, Rooke) === Set(
 //      EmptyBoard.withPieceAt(King, Pos(0, 0)).withPieceAt(King, Pos(0, 2)).withPieceAt(Rooke, Pos(2, 1)),
 //      EmptyBoard.withPieceAt(King, Pos(0, 0)).withPieceAt(King, Pos(2, 0)).withPieceAt(Rooke, Pos(1, 2)),
