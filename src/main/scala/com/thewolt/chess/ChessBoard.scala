@@ -1,30 +1,16 @@
 package com.thewolt.chess
 
-import collection.mutable.Stack
-
-trait IPos {
-  type P <: IPos
-  val x: Int
-  val y: Int
-  def withDir(d: IPos): P
-  def toOffset: Int
+case class Pos(x: Int, y: Int) {
+  def withDir(d: Pos) = copy( x = d.x + x , y = d.y + y)
 }
 
 trait Piece {
-  val moves: Iterable[IPos]
+  val moves: Iterable[Pos]
   val letter: String
 }
 
 case class Data(index: Int, letter: Char) {
   var children : List[Data] = Nil
-
-  /* returns data and ifNew */
-  def addChild(list: List[Data], d: Data): (Data, Boolean) = {
-    list match {
-      case Nil => (d, true)
-      case used :: rest => if(d == used) (used, false) else addChild(rest, d)
-    }
-  }
 
   def withPiece(pos: Int, letter: Char): Data = {
     val (data, b) = addChild(children, Data(pos, letter))
@@ -33,43 +19,54 @@ case class Data(index: Int, letter: Char) {
     }
     data
   }
+
+  /* returns data and ifNew */
+  private def addChild(list: List[Data], d: Data): (Data, Boolean) = {
+    list match {
+      case Nil => (d, true)
+      case used :: rest => if(d == used) (used, false) else addChild(rest, d)
+    }
+  }
+
 }
 
 class CheckBoard(width: Int, height: Int) {
-  import math._
 
-  case class Pos(x: Int, y: Int) extends IPos {
-    type P = Pos
-    def withDir(d: IPos) = copy( x = d.x + x , y = d.y + y)
-    def toOffset = y * width + x
+  class PosWrapper(pos: Pos) {
+    def toOffset =  {
+      require(pos.x < width && pos.y < height, "position is out of grid")
+      pos.y * width + pos.x
+    }
+    def isInBoard = (0 until width).contains(pos.x)  && (0 until height).contains(pos.y)
   }
+  implicit def toPosWrapper(pos: Pos) = new PosWrapper(pos)
 
   def fromOffset(i: Int) = Pos(i % width, i / width)
   def allPossibleMoves = for( x <- -width to width ; y <- -height to height) yield Pos(x,y)
 
 
   object King extends Piece {
-    val moves = allPossibleMoves.filter { p => max(abs(p.x), abs(p.y)) == 1 }
+    val moves = allPossibleMoves.filter { p => (p.x.abs max p.y.abs) == 1 }
     val letter = "K"
   }
 
-  object Rooke extends Piece {
+  object Rook extends Piece {
     val moves = allPossibleMoves.filter { p => p.x == 0 || p.y == 0 }
     val letter = "R"
   }
 
   object Bishop extends Piece {
-    val moves = allPossibleMoves.filter { p => abs(p.x) == abs(p.y) }
+    val moves = allPossibleMoves.filter { p => p.x.abs == p.y.abs }
     val letter = "B"
   }
 
   object Queen extends Piece {
-    val moves = allPossibleMoves.filter { p => abs(p.x) == abs(p.y) || p.x == 0 || p.y == 0 }
+    val moves = allPossibleMoves.filter { p => p.x.abs == p.y.abs || p.x == 0 || p.y == 0 }
     val letter = "Q"
   }
 
   object Knight extends Piece {
-    val moves = allPossibleMoves.filter { p => abs(p.x) * abs(p.y) == 2 }
+    val moves = allPossibleMoves.filter { p => p.x.abs * p.y.abs == 2 }
     val letter = "N"
   }
 
@@ -92,15 +89,7 @@ class CheckBoard(width: Int, height: Int) {
       case Some(BoardCons(parent, piece, pos)) => (pos.toOffset -> piece.letter) :: parent.repr
     }
 
-    def usedRepr = {
-      val buf = new StringBuilder
-      repr.toList.sortBy(a => a._1).foreach { case (k,v) => buf.append(k).append(v) }
-      buf.toString
-    }
-
-    val inBoard: Pos => Boolean = (p: Pos) => p.x >= 0 && p.x < width && p.y >=0 && p.y < height
-
-    def pieceMoves(piece: Piece, pos: Pos) = piece.moves.map { p => pos.withDir(p) }.filter( inBoard )
+    def pieceMoves(piece: Piece, pos: Pos) = piece.moves.map { p => pos.withDir(p) }.filter( _.isInBoard )
 
     def atPos(pos: Pos): Square = layout(pos.toOffset)
 
@@ -162,36 +151,27 @@ class CheckBoard(width: Int, height: Int) {
 
   object EmptyBoard extends CheckBoardInstance()
 
-  case class Level( level: Int, cur: CheckBoardInstance)
-
-  def place(_pieces: Piece*): (Data, Int) = {
+  def place(_pieces: Piece*) : (Data, Int) = {
     val pieces = Vector( _pieces : _*)
-    val stack = new Stack[Level]()
-    stack.push(Level(0, EmptyBoard))
+    val res = Data(-1, 0)
     var count = 0
-    val res = Data(-1,0)  //FIXME: data without info
-    while( !stack.isEmpty) {
-      val Level(level, board) = stack.pop
 
+    def findPlaces(level: Int, board: CheckBoardInstance) {
       if(level == pieces.size) {
         board.repr.foldLeft(res) { case (data : Data, (pos : Int,letter: String)) => data.withPiece(pos, letter.charAt(0)) }
-        count += 1
+        count +=1
         if(count % 1000 == 0) {
           println("got res.size="+count)
         }
       } else {
         val curPiece = pieces(level)
-        board.place(curPiece).foreach( newBoard =>
-          stack.push(Level(level+1, newBoard))
-        )
+        board.place(curPiece).foreach( newBoard => findPlaces(level+1, newBoard) )
       }
     }
-    (res,count)
+    findPlaces(0, EmptyBoard)
+    (res, count)
   }
-
 }
-
-
 
 
 object Main {

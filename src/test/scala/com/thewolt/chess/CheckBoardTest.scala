@@ -39,18 +39,18 @@ class CheckBoardTest extends FunSuite {
 
   test("board instance should tell if a piece can stay") {
     val i = (new CheckBoardInstance).withPieceAt(King, Pos(0, 0))
-    assert( i.canPieceStay(Rooke, Pos(2, 0)) === false)
-    assert( i.canPieceStay(Rooke, Pos(2, 1)) === true )
+    assert( i.canPieceStay(Rook, Pos(2, 0)) === false)
+    assert( i.canPieceStay(Rook, Pos(2, 1)) === true )
   }
 
   test("board instance can give a list of all possible place for a piece") {
     val i = (new CheckBoardInstance).withPieceAt(King, Pos(0, 0))
-    assert( i.place(Rooke).toSet === Set(Pos(2, 1), Pos(2, 2), Pos(1, 2)).map( i.withPieceAt(Rooke, _)))
+    assert( i.place(Rook).toSet === Set(Pos(2, 1), Pos(2, 2), Pos(1, 2)).map( i.withPieceAt(Rook, _)))
   }
 
   test("board can place 2 king and a rook") {
-    assert( board.place(King, King, Rooke)._2 === 4)
-//    assert( board.place(King, King, Rooke) === Set(
+    assert( board.place(King, King, Rook)._2 === 4)
+//    assert( board.place(King, King, Rook) === Set(
 //      EmptyBoard.withPieceAt(King, Pos(0, 0)).withPieceAt(King, Pos(0, 2)).withPieceAt(Rooke, Pos(2, 1)),
 //      EmptyBoard.withPieceAt(King, Pos(0, 0)).withPieceAt(King, Pos(2, 0)).withPieceAt(Rooke, Pos(1, 2)),
 //      EmptyBoard.withPieceAt(King, Pos(0, 2)).withPieceAt(King, Pos(2, 2)).withPieceAt(Rooke, Pos(1, 0)),
