@@ -29,15 +29,12 @@ object Data {
 case class Data(index: Int, letter: Char) {
   var children : List[Data] = Nil
 
-  def withPiece2(pos: IPos, letter: String): (Data,Boolean) = {
-    withPiece(pos.toOffset, letter.charAt(0))
-  }
-  def withPiece(pos: Int, letter: Char): (Data,Boolean) = {
+  def withPiece(pos: Int, letter: Char): Data = {
     val (data, b) = Data.addChild(children, Data(pos, letter))
     if(b) {
       children = data :: children
     }
-    (data,b)
+    data
   }
 }
 
@@ -170,28 +167,18 @@ class CheckBoard(width: Int, height: Int) {
 
   case class Level( level: Int, cur: CheckBoardInstance)
 
-  def place(_pieces: Piece*): (List[Data], Int) = {
+  def place(_pieces: Piece*): (Data, Int) = {
     val pieces = Vector( _pieces : _*)
     val stack = new Stack[Level]()
     stack.push(Level(0, EmptyBoard))
     var count = 0
-    var res = List[Data]()
+    val res = Data(-1,0)  //FIXME: data without info
     while( !stack.isEmpty) {
       val Level(level, board) = stack.pop
 
       if(level == pieces.size) {
-        val root :: rest = board.repr
-        val (resRoot, resRootAdd) = Data.addChild(res, Data(root._1, root._2.charAt(0)))
-        if(resRootAdd) {
-          res ::= resRoot
-        }
-        val (_, newBranch) = rest.foldLeft((resRoot, false)) { case ((data : Data,b : Boolean), (pos : Int,letter: String)) =>
-          val (newData, newB) = data.withPiece(pos, letter.charAt(0))
-          (newData , newB || b)
-        }
-        if(newBranch) {
-          count += 1
-        }
+        board.repr.foldLeft(res) { case (data : Data, (pos : Int,letter: String)) => data.withPiece(pos, letter.charAt(0)) }
+        count += 1
         if(count % 1000 == 0) {
           println("got res.size="+count)
         }
