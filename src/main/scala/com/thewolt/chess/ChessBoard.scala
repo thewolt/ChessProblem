@@ -4,11 +4,11 @@ case class Pos(x: Int, y: Int) {
   def withDir(d: Pos) = copy( x = d.x + x , y = d.y + y)
 }
 
-case class Data(index: Int, letter: Char) {
-  var children : List[Data] = Nil
+class Tree[T](val data: T) {
+  var children : List[Tree[T]] = Nil
 
-  def withPiece(pos: Int, letter: Char): Data = {
-    val (data, b) = addChild(children, Data(pos, letter))
+  def add(newData: T): Tree[T] = {
+    val (data, b) = addChild(children, newData)
     if(b) {
       children = data :: children
     }
@@ -16,14 +16,15 @@ case class Data(index: Int, letter: Char) {
   }
 
   /* returns data and ifNew */
-  private def addChild(list: List[Data], d: Data): (Data, Boolean) = {
+  private def addChild(list: List[Tree[T]], d: T): (Tree[T], Boolean) = {
     list match {
-      case Nil => (d, true)
-      case used :: rest => if(d == used) (used, false) else addChild(rest, d)
+      case Nil => (new Tree(d), true)
+      case used :: rest => if(d == used.data) (used, false) else addChild(rest, d)
     }
   }
-
 }
+
+case class Data(pos: Pos, piece: Piece)
 
 abstract class Piece(val letter: String) {
   def allowMove(dir: Pos): Boolean
@@ -63,7 +64,7 @@ class CheckBoard(width: Int, height: Int) {
   def fromOffset(i: Int) = Pos(i % width, i / width)
   def allPossibleMoves = for( x <- -width to width ; y <- -height to height) yield Pos(x,y)
 
-  case class PieceOnBoard(val piece: Piece) {
+  case class PieceOnBoard(piece: Piece) {
     val moves = allPossibleMoves.filter { d => piece.allowMove(d)}
     def letter = piece.letter
   }
@@ -82,9 +83,9 @@ class CheckBoard(width: Int, height: Int) {
     def this(layout: Array[Square]) = this(layout, None)
     //def this( sqs: Square* ) = this(sqs.toArray)
 
-    lazy val repr : List[(Int, String)] = info match {
+    lazy val repr : List[Data] = info match {
       case None => Nil
-      case Some(BoardCons(parent, piece, pos)) => (pos.toOffset -> piece.letter) :: parent.repr
+      case Some(BoardCons(parent, pieceOnBoard, pos)) => Data(pos, pieceOnBoard.piece) :: parent.repr
     }
 
     def pieceMoves(piece: PieceOnBoard, pos: Pos) = piece.moves.map { p => pos.withDir(p) }.filter( _.isInBoard )
@@ -172,14 +173,14 @@ class CheckBoard(width: Int, height: Int) {
 
   object EmptyBoard extends CheckBoardInstance()
 
-  def place(_pieces: Piece*) : (Data, Int) = {
+  def place(_pieces: Piece*) : (Tree[Data], Int) = {
     val pieces = Vector( _pieces : _*).map { p => new PieceOnBoard(p) }
-    val res = Data(-1, 0)
+    val res: Tree[Data] = new Tree[Data](null)
     var count = 0
 
     def findPlaces(level: Int, board: CheckBoardInstance) {
       if(level == pieces.size) {
-        board.repr.foldLeft(res) { case (data : Data, (pos : Int,letter: String)) => data.withPiece(pos, letter.charAt(0)) }
+        board.repr.foldLeft(res) { case (tree : Tree[Data], data: Data) => tree.add(data) }
         count +=1
         if(count % 1000 == 0) {
           println("got res.size="+count)
@@ -194,11 +195,20 @@ class CheckBoard(width: Int, height: Int) {
   }
 }
 
-
 object Main {
+  def measure[T]( chunk: => T): T = {
+    import System.{currentTimeMillis => now}
+    val begin = now
+    val res = chunk
+    val dur = (now - begin)
+    println("done in "+(dur/1000.0)+" ms")
+    res
+  }
   def main(args: Array[String]) {
-    val board = new CheckBoard(7, 7)
-    val (res, count) = board.place(Queen, Queen, Bishop, Bishop, King, King, Knight)
-    println( count )
+    measure {
+      val board = new CheckBoard(7, 7)
+      val (res, count) = board.place(Queen, Queen, Bishop, Bishop, King, King, Knight)
+      println( count )
+    }
   }
 }
