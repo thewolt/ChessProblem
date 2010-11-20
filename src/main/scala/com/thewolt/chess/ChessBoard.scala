@@ -1,7 +1,6 @@
 package com.thewolt.chess
 
 import collection.mutable.Stack
-import collection.mutable.Set
 
 trait IPos {
   type P <: IPos
