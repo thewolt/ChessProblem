@@ -4,11 +4,6 @@ case class Pos(x: Int, y: Int) {
   def withDir(d: Pos) = copy( x = d.x + x , y = d.y + y)
 }
 
-trait Piece {
-  val moves: Iterable[Pos]
-  val letter: String
-}
-
 case class Data(index: Int, letter: Char) {
   var children : List[Data] = Nil
 
@@ -30,6 +25,30 @@ case class Data(index: Int, letter: Char) {
 
 }
 
+abstract class Piece(val letter: String) {
+  def allowMove(dir: Pos): Boolean
+}
+
+object King extends Piece("K") {
+  def allowMove(dir: Pos) = (dir.x.abs max dir.y.abs) == 1
+}
+
+object Rook extends Piece("R") {
+  def allowMove(dir: Pos) = dir.x == 0 || dir.y == 0
+}
+
+object Bishop extends Piece("B") {
+  def allowMove(dir: Pos) = dir.x.abs == dir.y.abs
+}
+
+object Queen extends Piece("Q") {
+  def allowMove(dir: Pos) = dir.x.abs == dir.y.abs || dir.x == 0 || dir.y == 0
+}
+
+object Knight extends Piece("N") {
+  def allowMove(dir: Pos) = dir.x.abs * dir.y.abs == 2
+}
+
 class CheckBoard(width: Int, height: Int) {
 
   class PosWrapper(pos: Pos) {
@@ -44,38 +63,17 @@ class CheckBoard(width: Int, height: Int) {
   def fromOffset(i: Int) = Pos(i % width, i / width)
   def allPossibleMoves = for( x <- -width to width ; y <- -height to height) yield Pos(x,y)
 
-
-  object King extends Piece {
-    val moves = allPossibleMoves.filter { p => (p.x.abs max p.y.abs) == 1 }
-    val letter = "K"
-  }
-
-  object Rook extends Piece {
-    val moves = allPossibleMoves.filter { p => p.x == 0 || p.y == 0 }
-    val letter = "R"
-  }
-
-  object Bishop extends Piece {
-    val moves = allPossibleMoves.filter { p => p.x.abs == p.y.abs }
-    val letter = "B"
-  }
-
-  object Queen extends Piece {
-    val moves = allPossibleMoves.filter { p => p.x.abs == p.y.abs || p.x == 0 || p.y == 0 }
-    val letter = "Q"
-  }
-
-  object Knight extends Piece {
-    val moves = allPossibleMoves.filter { p => p.x.abs * p.y.abs == 2 }
-    val letter = "N"
+  case class PieceOnBoard(val piece: Piece) {
+    val moves = allPossibleMoves.filter { d => piece.allowMove(d)}
+    def letter = piece.letter
   }
 
   abstract class Square
   case object Empty extends Square
   case object Check extends Square
-  case class WithPiece(p: Piece) extends Square
+  case class WithPiece(piece: Piece) extends Square
 
-  case class BoardCons(parent: CheckBoardInstance, piece: Piece, pos: Pos)
+  case class BoardCons(parent: CheckBoardInstance, piece: PieceOnBoard, pos: Pos)
 
   class CheckBoardInstance( val layout: Array[Square], info: Option[BoardCons]) {
     require(layout.size == width * height)
@@ -89,24 +87,15 @@ class CheckBoard(width: Int, height: Int) {
       case Some(BoardCons(parent, piece, pos)) => (pos.toOffset -> piece.letter) :: parent.repr
     }
 
-    def pieceMoves(piece: Piece, pos: Pos) = piece.moves.map { p => pos.withDir(p) }.filter( _.isInBoard )
+    def pieceMoves(piece: PieceOnBoard, pos: Pos) = piece.moves.map { p => pos.withDir(p) }.filter( _.isInBoard )
 
     def atPos(pos: Pos): Square = layout(pos.toOffset)
 
-    def withPieceAt(piece: Piece, pos: Pos): CheckBoardInstance = {
-      _withPieceAt(piece, pos, pieceMoves(piece, pos))
-    }
 
-    def _withPieceAt(piece: Piece, pos: Pos, moves: Iterable[Pos]): CheckBoardInstance = {
-      val newLayout = layout.clone
-      for( p <- moves) {
-        newLayout(p.toOffset) = Check
-      }
-      newLayout.update(pos.toOffset, WithPiece(piece))
-      new CheckBoardInstance(newLayout, Some(BoardCons(this, piece, pos)))
-    }
-
-    def place(piece: Piece): Iterable[CheckBoardInstance] = availablePos(piece).flatMap { p =>
+    /**
+     * gives all possibilities of board with the next piece on board
+     */
+    def place(piece: PieceOnBoard): Iterable[CheckBoardInstance] = availablePos(piece).flatMap { p =>
       val moves = pieceMoves(piece, p)
       if(_canPieceStay(piece, p, moves)) {
         Some(_withPieceAt(piece, p, moves))
@@ -117,17 +106,43 @@ class CheckBoard(width: Int, height: Int) {
 
     /**
      * means does not check another piece
+     * @param piece the piece to place
+     * @param pos the position where to place it
+     * @return +true+ if the piece does not check another piece, +false+ otherwise
      */
-    def canPieceStay(piece: Piece, pos: Pos): Boolean = _canPieceStay(piece, pos, pieceMoves(piece, pos))
+    def canPieceStay(piece: Piece, pos: Pos): Boolean = {
+      val pieceOnBoard = PieceOnBoard(piece)
+      _canPieceStay(pieceOnBoard, pos, pieceMoves(pieceOnBoard, pos))
+    }
 
-    def _canPieceStay(piece: Piece, pos: Pos, moves: Iterable[Pos]): Boolean = moves.forall { p =>
+    /**
+     * construct another board with the piece at pos
+     * @param piece the piece to place
+     * @param pos the position where to place it
+     * @return the new board with the piece in it
+     */
+    def withPieceAt(piece: Piece, pos: Pos): CheckBoardInstance = {
+      val pieceOnBoard = new PieceOnBoard(piece)
+      _withPieceAt(pieceOnBoard, pos, pieceMoves(pieceOnBoard, pos))
+    }
+
+    def _canPieceStay(piece: PieceOnBoard, pos: Pos, moves: Iterable[Pos]): Boolean = moves.forall { p =>
       val i = atPos(p)
       (i eq Empty) || (i eq Check) 
     }
 
+    def _withPieceAt(piece: PieceOnBoard, pos: Pos, moves: Iterable[Pos]): CheckBoardInstance = {
+      val newLayout = layout.clone
+      for( p <- moves) {
+        newLayout(p.toOffset) = Check
+      }
+      newLayout.update(pos.toOffset, WithPiece(piece.piece))
+      new CheckBoardInstance(newLayout, Some(BoardCons(this, piece, pos)))
+    }
+
     def availablePos: Iterable[Pos] = layout.zipWithIndex.flatMap { case (sq,i) => if(sq == Empty) Some(fromOffset(i)) else None }
 
-    def availablePos(piece: Piece): Iterable[Pos] = info match {
+    def availablePos(piece: PieceOnBoard): Iterable[Pos] = info match {
       case Some(i) if i.piece == piece => availablePos.filter(p => p.toOffset > i.pos.toOffset)
       case _ => availablePos
     }
@@ -139,20 +154,26 @@ class CheckBoard(width: Int, height: Int) {
       }
     }
 
-    override def toString = "Check[\n" + (0 until height).map( y =>
-      (0 until width).map( x =>
-        atPos(Pos(x,y)) match {
-          case Empty => "."
-          case Check => "*"
-          case WithPiece(p) => p.letter
-        }).mkString
+    override def toString = {
+      "Check[\n" + (0 until height).map( y =>
+        (0 until width).map( x =>
+          atPos(Pos(x,y)) match {
+            case Empty => "."
+            case Check => "*"
+            case WithPiece(p) => p.letter
+          }).mkString
       ).mkString("\n") + "\n]"
+    }
+  }
+
+  object BoardImplicits {
+    implicit def toPieceOnBoard(piece: Piece) = PieceOnBoard(piece)
   }
 
   object EmptyBoard extends CheckBoardInstance()
 
   def place(_pieces: Piece*) : (Data, Int) = {
-    val pieces = Vector( _pieces : _*)
+    val pieces = Vector( _pieces : _*).map { p => new PieceOnBoard(p) }
     val res = Data(-1, 0)
     var count = 0
 
@@ -177,8 +198,6 @@ class CheckBoard(width: Int, height: Int) {
 object Main {
   def main(args: Array[String]) {
     val board = new CheckBoard(7, 7)
-    import board._
-
     val (res, count) = board.place(Queen, Queen, Bishop, Bishop, King, King, Knight)
     println( count )
   }

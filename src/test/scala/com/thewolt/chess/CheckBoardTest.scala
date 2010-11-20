@@ -13,6 +13,7 @@ import org.scalatest._
 class CheckBoardTest extends FunSuite {
   val board = new CheckBoard(3, 3)
   import board._
+  import board.BoardImplicits._
 
   test("board instance should list available pos") {
     val i = new CheckBoardInstance( Array(
