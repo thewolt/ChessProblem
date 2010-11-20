@@ -15,21 +15,19 @@ trait Piece {
   val letter: String
 }
 
-object Data {
-    /* returns data and found */
-  def addChild(children: List[Data], d: Data): (Data, Boolean) = {
-    children match {
+case class Data(index: Int, letter: Char) {
+  var children : List[Data] = Nil
+
+  /* returns data and ifNew */
+  def addChild(list: List[Data], d: Data): (Data, Boolean) = {
+    list match {
       case Nil => (d, true)
       case used :: rest => if(d == used) (used, false) else addChild(rest, d)
     }
   }
-}
-
-case class Data(index: Int, letter: Char) {
-  var children : List[Data] = Nil
 
   def withPiece(pos: Int, letter: Char): Data = {
-    val (data, b) = Data.addChild(children, Data(pos, letter))
+    val (data, b) = addChild(children, Data(pos, letter))
     if(b) {
       children = data :: children
     }
